@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redisbank-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: redisbank
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
