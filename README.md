@@ -43,6 +43,11 @@ metadata:
   name: redis-enterprise-database
 spec:
   memorySize: 100MB
+  modulesList:
+    - name: search
+      version: 2.0.6
+    - name: timeseries
+      version: 1.4.8
 EOF
 ```
 Staging GKE Cluster:
@@ -69,6 +74,11 @@ metadata:
   name: redis-enterprise-database
 spec:
   memorySize: 100MB
+  modulesList:
+    - name: search
+      version: 2.0.6
+    - name: timeseries
+      version: 1.4.8
 EOF
 ```
 Production GKE Cluster:
@@ -95,6 +105,11 @@ metadata:
   name: redis-enterprise-database
 spec:
   memorySize: 100MB
+  modulesList:
+    - name: search
+      version: 2.0.6
+    - name: timeseries
+      version: 1.4.8
 EOF
 ```
 
