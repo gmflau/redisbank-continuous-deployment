@@ -2,21 +2,104 @@
 
 Environment setup:
 1. Create a GKE cluster
-2. Create Cloud Build triggers for dev/merge/tag
-3. Run the demo
+2. Deploy REC/REDB in three namespaces (development/staging/production)
+3. Create Cloud Build triggers for dev/merge/tag
+4. Run the demo
 
 
 
 #### 1. Create a GKE cluster
 ```
-./create-cluster glau-redisbank-cluster us-west1-a
-
 export PROJECT=$(gcloud info --format='value(config.project)')
+export CLUSTER="glau-redisbank-cluster"
 export ZONE=us-west1-a
-export CLUSTER=glau-redisbank-cluster
+
+./create-cluster $CLUSTER $ZONE
 ```
 
-#### 2. Create Cloud Build triggers for dev/merge/tag
+
+#### 2. Deploy REC/REDB in three namespaces (development/staging/production)
+Development GKE Cluster:
+```
+kubectl create namespace development
+kubectl config set-context --current --namespace=development
+kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/v6.0.20-4/bundle.yaml
+
+kubectl apply -f - <<EOF
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseCluster
+namespace: development
+metadata:
+  name: rec
+spec:
+  nodes: 3
+EOF
+
+kubectl apply -f - <<EOF
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseDatabase
+namespace: development
+metadata:
+  name: redis-enterprise-database
+spec:
+  memorySize: 100MB
+EOF
+```
+Staging GKE Cluster:
+```
+kubectl create namespace staging
+kubectl config set-context --current --namespace=staging
+kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/v6.0.20-4/bundle.yaml
+
+kubectl apply -f - <<EOF
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseCluster
+namespace: staging
+metadata:
+  name: rec
+spec:
+  nodes: 3
+EOF
+
+kubectl apply -f - <<EOF
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseDatabase
+namespace: staging
+metadata:
+  name: redis-enterprise-database
+spec:
+  memorySize: 100MB
+EOF
+```
+Production GKE Cluster:
+```
+kubectl create namespace production
+kubectl config set-context --current --namespace=production
+kubectl apply -f https://raw.githubusercontent.com/RedisLabs/redis-enterprise-k8s-docs/v6.0.20-4/bundle.yaml
+
+kubectl apply -f - <<EOF
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseCluster
+namespace: production
+metadata:
+  name: rec
+spec:
+  nodes: 3
+EOF
+
+kubectl apply -f - <<EOF
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseDatabase
+namespace: production
+metadata:
+  name: redis-enterprise-database
+spec:
+  memorySize: 100MB
+EOF
+```
+
+
+#### 3. Create Cloud Build triggers for dev/merge/tag
 Create trigger for git dev branch update
 ```
 cat <<EOF > branch-build-trigger.json
@@ -92,7 +175,7 @@ curl -X POST \
 ```
 
 
-#### 3. Run the demo
+#### 4. Run the demo
 Trigger a cloud-build (redisbank-branch)     
 ```
 git checkout -b dev200
