@@ -40,7 +40,7 @@ curl -X POST \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $(gcloud config config-helper --format='value(credential.access_token)')" \
     --data-binary @branch-build-trigger.json
-```. 
+```
 Create trigger for git merge with master branch
 ```
 cat <<EOF > master-build-trigger.json
