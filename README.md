@@ -14,7 +14,7 @@ export PROJECT=$(gcloud info --format='value(config.project)')
 export CLUSTER="glau-redisbank-cluster"
 export ZONE=us-west1-a
 
-./create-cluster.sh $CLUSTER $ZONE
+./create_cluster.sh $CLUSTER $ZONE
 ```
 
 
