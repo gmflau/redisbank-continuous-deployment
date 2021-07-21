@@ -218,3 +218,84 @@ git branch
 git tag v2.0.1
 git push origin v2.0.1
 ```
+
+
+Redis Enteprise Database:
+```
+kubectl apply -f - <<EOF
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseDatabase
+metadata:
+  name: redis-enterprise-database
+spec:
+  modulesList:
+    - name: search
+      version: 2.0.86
+    - name: timeseries
+      version: 1.4.9
+  memorySize: 200MB
+EOF
+```  
+
+
+
+Redisbank deployment and service:
+```
+kubectl apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redisbank-deployment
+spec:
+  selector:
+    matchLabels:
+      app: redisbank
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redisbank
+    spec:
+      containers:
+      - name: redisbank
+        image: gcr.io/central-beach-194106/redisbank:0.0.1
+        imagePullPolicy: Always
+        ports:
+        - name: redisbank
+          containerPort: 8080
+        env:
+        - name: SPRING_REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: redb-redis-enterprise-database
+              key: service_name
+        - name: SPRING_REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: redb-redis-enterprise-database
+              key: port
+        - name: SPRING_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redb-redis-enterprise-database
+              key: password
+EOF
+```  
+```
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: redisbank-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: redisbank
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8080
+EOF
+```
+
