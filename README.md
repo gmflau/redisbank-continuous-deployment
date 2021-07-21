@@ -230,7 +230,7 @@ metadata:
 spec:
   modulesList:
     - name: search
-      version: 2.0.86
+      version: 2.0.8
     - name: timeseries
       version: 1.4.9
   memorySize: 200MB
